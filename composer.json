@@ -1,0 +1,5 @@
+{
+  "require": {
+    "codelicious/php-coda-parser": "^1.0"
+  }
+}
