@@ -24,7 +24,8 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
 
     // read config, set defaults
     $config = $this->_plugin_config;
-    if (!isset($config->defaults))          $config->defaults         = array();
+    if (!isset($config->import_mode))       $config->import_mode       = 'simple'; // or 'raw'
+    if (!isset($config->defaults))          $config->defaults          = array();
     if (!isset($config->statement_rules))   $config->statement_rules   = array();
     if (!isset($config->transaction_rules)) $config->transaction_rules = array();
   }
@@ -69,8 +70,9 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
    */
   function probe_file( $file_path, $params )
   {
+    $config = $this->_plugin_config;
     $parser = new Parser();
-    $statements = $parser->parseFile($file_path, 'simple');
+    $statements = $parser->parseFile($file_path, $config->import_mode);
     return !empty($statements);
   }
 
@@ -87,7 +89,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     $this->reportProgress(0.0, sprintf("Starting to read file '%s'...", $params['source']));
 
     $parser = new Parser();
-    $statements = $parser->parseFile($file_path, 'simple');
+    $statements = $parser->parseFile($file_path, $config->import_mode);
 
     // get some stats
     $total_processed = $total_count = 0;
@@ -109,8 +111,12 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
       foreach ($statement->transactions as $transaction) {
         $trxn_nr += 1;
         $total_processed += 1;
-        $raw_data = json_encode($transaction);
-        
+        if ($config->import_mode == 'raw') {
+          $raw_data = 'n/a (import mode: raw)';
+        } else {
+          $raw_data = json_encode($transaction);
+        }
+
         $transaction_data =  array(
           'version'   => 3,
           'currency'  => 'EUR',
@@ -159,7 +165,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
           }
         }
         $transaction_data['data_parsed'] = json_encode($transaction_data_extra);
-        $transaction_data['bank_reference'] = sha1(json_encode($transaction_data));
+        $transaction_data['bank_reference'] = sha1(print_r($transaction_data, 1));
       
         // and finally write it into the DB
         $progress = (float) $total_processed / (float) $total_count;
@@ -177,6 +183,13 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
         } else {
           $this->getCurrentTransactionBatch()->reference = "CODA {md5}";
         }
+
+        if (!empty($statement_data['tx_batch.sequence']))
+          $this->getCurrentTransactionBatch()->sequence = $statement_data['tx_batch.sequence'];
+        if (!empty($statement_data['tx_batch.starting_date']))
+          $this->getCurrentTransactionBatch()->starting_date = $statement_data['tx_batch.starting_date'];
+        if (!empty($statement_data['tx_batch.ending_date']))
+          $this->getCurrentTransactionBatch()->ending_date = $statement_data['tx_batch.ending_date'];
 
         $this->closeTransactionBatch(TRUE);
       } else {
@@ -196,9 +209,6 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     if (substr($key, 0, 10) == '_constant:') {
       return substr($key, 10);
 
-    } elseif (isset($line->$key)) {
-      return $line->$key;
-
     } elseif (strpos($key, ':') !== FALSE) {
       // a from field with ':' means a descend into the tree'
       $path = explode(':', $key);
@@ -211,6 +221,9 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
         }
       }
       return $value;
+
+    } elseif (isset($line->$key)) {
+      return $line->$key;
 
     } elseif (isset($btx[$key])) {
       return $btx[$key];
