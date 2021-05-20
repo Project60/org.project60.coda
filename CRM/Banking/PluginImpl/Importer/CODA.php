@@ -98,7 +98,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     foreach ($statements as $statement) {
       $statement_data = $config->defaults;
       foreach ($config->statement_rules as $rule) {
-        $this->apply_rule($rule, $statement, $statement_data, NULL);
+        $this->apply_rule($rule, $statement, $statement_data, NULL, []);
       }
 
       // create an empty batch
@@ -121,7 +121,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
         $transaction_data = $transaction_data + $statement_data;
 
         foreach ($config->transaction_rules as $rule) {
-          $this->apply_rule($rule, $transaction, $transaction_data, NULL);
+          $this->apply_rule($rule, $transaction, $transaction_data, NULL, []);
         }
 
         // look up the bank accounts
