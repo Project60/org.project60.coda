@@ -71,7 +71,6 @@ function coda_civicrm_install() {
 function coda_civicrm_uninstall() {
   // remove plugin type
   $importer_id = CRM_Core_OptionGroup::getValue('civicrm_banking.plugin_types', 'importer_coda', 'name', 'String', 'id');
-  error_log("KICK $importer_id");
 
   _coda_civix_civicrm_uninstall();
 }
