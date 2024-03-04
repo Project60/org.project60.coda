@@ -35,9 +35,9 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
    */
   protected $account_cache = array();
 
-  /** 
+  /**
    * the plugin's user readable name
-   * 
+   *
    * @return string
    */
   static function displayName()
@@ -45,9 +45,9 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     return 'CODA Importer';
   }
 
-  /** 
+  /**
    * Report if the plugin is capable of importing files
-   * 
+   *
    * @return bool
    */
   static function does_import_files()
@@ -55,9 +55,9 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     return true;
   }
 
-  /** 
+  /**
    * Report if the plugin is capable of importing streams, i.e. data from a non-file source, e.g. the web
-   * 
+   *
    * @return bool
    */
   static function does_import_stream()
@@ -65,7 +65,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     return false;
   }
 
-  /** 
+  /**
    * Test if the given file can be imported
    */
   function probe_file( $file_path, $params )
@@ -77,10 +77,10 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
   }
 
 
-  /** 
+  /**
    * Import the given file
-   * 
-   * @return TODO: data format? 
+   *
+   * @return TODO: data format?
    */
   function import_file( $file_path, $params )
   {
@@ -147,9 +147,9 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
 
             if ($this->account_cache[$value] != NULL) {
               if (substr($key, 0, 7)=="_party_") {
-                $transaction_data['party_ba_id'] = $this->account_cache[$value];  
+                $transaction_data['party_ba_id'] = $this->account_cache[$value];
               } elseif (substr($key, 0, 1)=="_") {
-                $transaction_data['ba_id'] = $this->account_cache[$value];  
+                $transaction_data['ba_id'] = $this->account_cache[$value];
               }
             }
           }
@@ -166,7 +166,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
         }
         $transaction_data['data_parsed'] = json_encode($transaction_data_extra);
         $transaction_data['bank_reference'] = sha1(print_r($transaction_data, 1));
-      
+
         // and finally write it into the DB
         $progress = (float) $total_processed / (float) $total_count;
         $duplicate = $this->checkAndStoreBTX($transaction_data, $progress, $params);
@@ -195,7 +195,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
       } else {
         $this->closeTransactionBatch(FALSE);
       }
-    
+
     } // NEXT STATEMENT
 
     $this->reportDone();
@@ -204,7 +204,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
   /**
    * Extract the value for the given key from the CODA resource
    */
-  protected function getValue($key, $btx, $line=NULL, $header=array()) {
+  protected function getValue($key, $btx, $line=NULL, $header=[], $params = []) {
     // get value
     if (substr($key, 0, 10) == '_constant:') {
       return substr($key, 10);
@@ -236,10 +236,10 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
 
 
 
-  /** 
+  /**
    * Test if the configured source is available and ready
-   * 
-   * @var 
+   *
+   * @var
    * @return TODO: data format?
    */
   function probe_stream( $params )
@@ -247,10 +247,10 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     return false;
   }
 
-  /** 
+  /**
    * Import the given file
-   * 
-   * @return TODO: data format? 
+   *
+   * @return TODO: data format?
    */
   function import_stream( $params )
   {
