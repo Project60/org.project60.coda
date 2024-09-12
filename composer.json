@@ -1,5 +1,6 @@
 {
   "require": {
-    "codelicious/php-coda-parser": "^1.0"
+    "codelicious/php-coda-parser": "^1.0",
+    "globalcitizen/php-iban": ">=2.6"
   }
 }

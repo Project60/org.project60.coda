@@ -133,6 +133,20 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
         // look up the bank accounts
         // TODO: move to abstract class
         foreach ($transaction_data as $key => $value) {
+          // Convert NBAN to IBAN
+          if (preg_match('/^_party_NBAN_(..)$/', $key, $matches)) {
+            $country = $matches[1];
+            $result = civicrm_api('BankingAccountReference', 'convertnban', array('version' => 3, 'nban' => $value), $country);
+            if (!$result['is_error']) {
+              $party_iban = $result['values'][0];
+              $transaction_data['_party_IBAN'] = $party_iban;
+
+              $result = civicrm_api3('Bic', 'findbyiban', array(
+                'iban' => $party_iban,
+              ));
+              $transaction_data['_party_BIC'] = $result['bic'];
+            }
+          }
           // check for NBAN_?? or IBAN endings
           if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
             // this is a *BAN entry -> look it up
