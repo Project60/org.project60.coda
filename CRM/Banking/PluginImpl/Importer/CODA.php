@@ -25,15 +25,15 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
     // read config, set defaults
     $config = $this->_plugin_config;
     if (!isset($config->import_mode))       $config->import_mode       = 'simple'; // or 'raw'
-    if (!isset($config->defaults))          $config->defaults          = array();
-    if (!isset($config->statement_rules))   $config->statement_rules   = array();
-    if (!isset($config->transaction_rules)) $config->transaction_rules = array();
+    if (!isset($config->defaults))          $config->defaults          = [];
+    if (!isset($config->statement_rules))   $config->statement_rules   = [];
+    if (!isset($config->transaction_rules)) $config->transaction_rules = [];
   }
 
   /**
    * will be used to avoid multiple account lookups
    */
-  protected $account_cache = array();
+  protected $account_cache = [];
 
   /**
    * the plugin's user readable name
@@ -117,12 +117,12 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
           $raw_data = json_encode($transaction);
         }
 
-        $transaction_data =  array(
+        $transaction_data =  [
           'version'   => 3,
           'currency'  => 'EUR',
           'data_raw'  => $raw_data,
           'sequence'  => $trxn_nr,
-        );
+        ];
 
         $transaction_data = $transaction_data + $statement_data;
 
@@ -137,7 +137,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
           if (preg_match('/^_.*NBAN_..$/', $key) || preg_match('/^_.*IBAN$/', $key)) {
             // this is a *BAN entry -> look it up
             if (!isset($this->account_cache[$value])) {
-              $result = civicrm_api('BankingAccountReference', 'getsingle', array('version' => 3, 'reference' => $value));
+              $result = civicrm_api('BankingAccountReference', 'getsingle', ['version' => 3, 'reference' => $value]);
               if (!empty($result['is_error'])) {
                 $this->account_cache[$value] = NULL;
               } else {
@@ -156,7 +156,7 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
         }
 
         // prepare for BTX creation
-        $transaction_data_extra = array();
+        $transaction_data_extra = [];
         foreach ($transaction_data as $key => $value) {
           if (!in_array($key, $this->_primary_btx_fields)) {
             // this entry has to be moved to the $transaction_data_extra records

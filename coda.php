@@ -39,26 +39,26 @@ function coda_civicrm_install() {
   _coda_civix_civicrm_install();
 
   // add our plugin to the list
-  $plugin_types = civicrm_api3('OptionGroup', 'get', array('name' => 'civicrm_banking.plugin_types'));
+  $plugin_types = civicrm_api3('OptionGroup', 'get', ['name' => 'civicrm_banking.plugin_types']);
   if (empty($plugin_types['id'])) {
     // create option group (CiviBanking not installed yet)
-    $plugin_types = civicrm_api3('OptionGroup', 'create', array(
+    $plugin_types = civicrm_api3('OptionGroup', 'create', [
           'title'       => 'CiviBanking plugin types',
           'description' => 'The set of possible CiviBanking plugin types',
-      ));
+      ]);
   }
 
   if (!empty($plugin_types['id'])) {
     $importer = CRM_Coda_OptionGroup::getValue('civicrm_banking.plugin_types', 'importer_coda', 'name', 'String', 'label');
     if (!$importer) {
       // doesn't exist yet
-      civicrm_api3('OptionValue', 'create', array(
+      civicrm_api3('OptionValue', 'create', [
         'option_group_id'  => $plugin_types['id'],
         'name'             => 'importer_coda',
         'label'            => 'CODA Importer',
         'value'            => 'CRM_Banking_PluginImpl_Importer_CODA',
         'is_default'       => 0
-        ));
+        ]);
     }
   }
 }
