@@ -31,11 +31,6 @@ class CRM_Banking_PluginImpl_Importer_CODA extends CRM_Banking_PluginImpl_Import
   }
 
   /**
-   * will be used to avoid multiple account lookups
-   */
-  protected $account_cache = array();
-
-  /**
    * the plugin's user readable name
    *
    * @return string
