@@ -78,7 +78,7 @@ class CRM_Coda_OptionGroup {
    *   label of the queried option value
    */
   public static function getLabel($group_name, $value, $onlyActiveValue = TRUE) {
-    if (empty($groupName) || $value === '' || $value === null) {
+    if (empty($group_name) || $value === '' || $value === NULL) {
       return NULL;
     }
 
