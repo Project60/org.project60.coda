@@ -19,7 +19,12 @@ function _coda_civix_civicrm_config(&$config = NULL) {
   $extRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
   $extDir = $extRoot . 'templates';
 
-  if ( is_array( $template->template_dir ) ) {
+  // Smarty 5 (CiviCRM 6) keeps template_dir protected, so use the accessors
+  // unless this is Smarty 2, with the same version check as core's smarty mixin.
+  if (!isset($template->_version) || version_compare($template->_version, 3, '>=')) {
+    $template->setTemplateDir(array_merge([$extDir], (array) $template->getTemplateDir()));
+  }
+  elseif (is_array($template->template_dir)) {
       array_unshift( $template->template_dir, $extDir );
   }
   else {
@@ -152,7 +157,7 @@ function _coda_civix_find_files($dir, $pattern) {
     if ($dh = opendir($subdir)) {
       while (FALSE !== ($entry = readdir($dh))) {
         $path = $subdir . DIRECTORY_SEPARATOR . $entry;
-        if ($entry{0} == '.') {
+        if ($entry[0] == '.') {
         } elseif (is_dir($path)) {
           $todos[] = $path;
         }
