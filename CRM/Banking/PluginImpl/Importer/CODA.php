@@ -8,7 +8,10 @@
 | License: AGPLv3, see LICENSE file                      |
 +--------------------------------------------------------*/
 
-include_once 'vendor/autoload.php';
+// Load this extension's own autoloader by absolute path: a bare
+// 'vendor/autoload.php' is resolved through the include_path, where other
+// extensions with a vendor/autoload.php can come first.
+include_once dirname(__DIR__, 4) . '/vendor/autoload.php';
 use Codelicious\Coda\Parser;
 
 /**
